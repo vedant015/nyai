@@ -28,11 +28,12 @@ const Auth = () => {
 
   // Redirect if already logged in - based on role
   React.useEffect(() => {
-    // Only redirect after auth is fully loaded and we have both user and role
-    if (!authLoading && user && userRole !== null) {
+    // Redirect after auth is loaded whenever a user exists.
+    // Fall back to the standard dashboard if the role has not loaded yet.
+    if (!authLoading && user) {
       console.log('Auth - User logged in, role:', userRole, 'current path:', location.pathname);
-      // Simple redirect: lawyers go to dashboard, users go to home
-      const destination = userRole === 'lawyer' ? '/lawyer-dashboard' : '/';
+      const effectiveRole = userRole ?? (user.user_metadata?.role as 'user' | 'lawyer' | undefined) ?? 'user';
+      const destination = effectiveRole === 'lawyer' ? '/lawyer-dashboard' : '/dashboard';
       
       // Only redirect if not already at the destination
       if (location.pathname !== destination) {
